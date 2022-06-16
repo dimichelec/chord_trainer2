@@ -1,9 +1,9 @@
 
 import sys
 import getopt
-import audio
 import chords
 import configparser
+import audio
 
 
 def usage(out):
@@ -27,6 +27,7 @@ class config:
     input_device = -1
     output_device = -1
     chord_beats = 4
+    chart_pos_max = 128
 
 
     def __init__(self):

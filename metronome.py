@@ -8,7 +8,7 @@ import numpy as np
 class metronome:
 
     bpm     = 80
-    bpm_min = 60
+    bpm_min = 1
     bpm_max = 160
     mute    = False
 
@@ -35,6 +35,7 @@ class metronome:
         click_frames = click_wave.readframes(self.click_frames_n[0])
         self.click_data.append(np.frombuffer(click_frames, dtype=np.int16))
         self.click_data[0] = self.click_data[0] // 6
+        self.click_framerate = click_wave.getframerate()
 
         # make a second copy of click wave that's 1/3 the volume
         # this is for the non-accented beats
@@ -54,6 +55,7 @@ class metronome:
         if not self.mute:
             self.click_index = 0 if self.beat in [0, self.chord_beats] else 1
             self.click_flag = True
+            self.audio.play_click()
 
         self.beat += 1
         if self.beat > self.chord_beats:

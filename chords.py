@@ -15,35 +15,56 @@ class chords:
     #   (fret pattern by string, low E first, -1 = don't play, 0 = play open),
     #   (interval of fretted strings from root, 0 = string not played, 1 = root)
     # ])
+    #
+    # Here's a good online chord DB: https://chords.gock.net/
 
     formulas = [
         ('M7', [
-            ((0,-1,1,1,0,-1), (1,0,7,3,5,0)),       # root on low E string
-            ((-1,0,2,3,2,-1), (0,1,5,7,3,0)),       # root on A string
-            ((-1,-1,0,2,2,2), (0,0,1,5,7,3))]),     # root on D string
+            (( 0,-1,1,1,0,-1), (1,0,7,3,5,0)),       # root on low E string
+            ((-1, 0,2,1,2, 0), (0,1,5,7,3,5)),       # root on A string
+            ((-1,-1,0,2,2, 2), (0,0,1,5,7,3))]),     # root on D string
         ('7', [
-            ((0,-1,0,1,0,-1), (1,0,-7,3,5,0)),      # root on low E string
-            ((-1,0,2,0,2,-1), (0,1,5,-7,3,0)),      # root on A string
-            ((-1,-1,0,2,1,2), (0,0,1,5,-7,3))]),    # root on D string
+            (( 0,-1,0,1,0,-1), (1,0,-7, 3, 5,0)),     # root on low E string
+            ((-1, 2,1,2,0,-1), (0,1, 3,-7, 1,0)),     # root on A string
+            ((-1,-1,0,2,1, 2), (0,0, 1, 5,-7,3))]),   # root on D string
         ('m7', [
-            ((0,-1,0,0,0,-1), (1,0,-7,-3,5,0)),     # root on low E string
-            ((-1,0,2,0,1,-1), (0,1,5,-7,-3,0)),     # root on A string
-            ((-1,-1,0,2,1,1), (0,0,1,5,-7,-3))]),   # root on D string
+            ((0,-1,0,0,0,-1), (1,0,-7,-3, 5, 0)),     # root on low E string
+            ((-1,0,2,0,1,-1), (0,1, 5,-7,-3, 0)),     # root on A string
+            ((-1,-1,0,2,1,1), (0,0, 1, 5,-7,-3))]),   # root on D string
+        ('m7b5', [
+            (( 1,-1,1,1,0,-1), (1,0,-7,-3,-5, 0)),    # root on low E string
+            ((-1, 0,1,0,1,-1), (0,1,-5,-7,-3, 0)),    # root on A string
+            ((-1,-1,0,1,1, 1), (0,0, 1,-5,-7,-3))]),  # root on D string
         ('M9', [
-            ((0,-1,1,1,2,2), (1,0,7,3,6,9)),        # root on low E string
-            ((-1,1,0,2,1,-1), (0,1,3,7,9,0))]),     # root on A string
+            (( 1, 0,2,0,-1,-1), (1,3,7,9,0,0)),       # root on low E string
+            ((-1, 1,0,2, 1,-1), (0,1,3,7,9,0)),       # root on A string
+            ((-1,-1,1,0, 3, 1), (0,0,1,3,7,9))]),     # root on D string
         ('9', [
-            ((-1,1,0,1,1,1), (0,1,3,-7,9,5))]),     # root on A string
+            (( 3,-1,3,2,0,-1), (1,0,-7, 9, 3, 0)),    # root on low E string
+            ((-1, 1,0,1,1, 1), (0,1, 3,-7, 9, 5)),    # root on A string
+            ((-1,-1,1,0,2, 1), (0,0, 1, 3,-7, 9))]),  # root on D string
         ('m9', [
-            ((2,0,2,1,-1,-1), (1,-3,-7,9,0,0)),     # root on low E string
-            ((-1,2,0,2,2,-1), (0,1,-3,-7,9,0)),     # root on A string
-            ((-1,-1,2,0,3,2), (0,0,1,-3,-7,9))]),   # root on D string
+            (( 2, 0,2,1,-1,-1), (1,-3,-7, 9, 0,0)),   # root on low E string
+            ((-1, 2,0,2, 2,-1), (0, 1,-3,-7, 9,0)),   # root on A string
+            ((-1,-1,2,0, 3, 2), (0, 0, 1,-3,-7,9))]), # root on D string
+        ('M11', [
+            (( 2,-1, 3,1, 0,-1), (1,0,7,9,11, 0)),    # root on low E string
+            ((-1, 2,-1,3, 2, 0), (0,1,0,7, 9,11)),    # root on A string
+            ((-1,-1, 4,3, 0, 1), (0,0,1,3,11, 7))]),  # root on D string
+        ('11', [
+            (( 2,-1,2,3,0,-1), (1,0,-7, 3,11, 0)),    # root on low E string
+            ((-1, 2,1,2,0, 0), (0,1, 3,-7, 1,11)),    # root on A string
+            ((-1,-1,4,3,0, 0), (0,0, 1, 3,11,-7))]),  # root on D string
+        ('m11', [
+            (( 2,-1, 2,2, 0,-1), (1,0,-7,-3,11, 0)),    # root on low E string
+            ((-1, 2,-1,2, 3, 0), (0,1, 0,-7,-3,11)),    # root on A string
+            ((-1,-1, 0,0, 1, 1), (0,0, 1,11,-7,-3))]),  # root on D string
     ]
 
 
     # given the root note and chord type, return a chord from our formulas played
     # in lowest neck position
-    def find_best_chord(self,root,type):
+    def find_best_chord(self,root,type,chord_form=0):
 
         # find the forms for the chord type
         forms = list(filter(lambda x: x[0] == type, self.formulas))[0][1]
@@ -55,32 +76,41 @@ class chords:
             iroot = self.notes.index(root[0])-1 if ('-' in root) or ('b' in root) else iroot
             iroot += len(self.notes) if iroot < 0 else 0
 
-        # find the form that will fit in the lowest position on the neck, based on
-        # which string our root note will be on.
-        # returns tuple (root string, root fret, chord form, string intervals)
-        out = ()
-        root_string = root_fret = iform = 0
-        for open_note in self.bass_tuning:
-            iopen = self.notes.index(open_note)
+        if chord_form == 0:
+            # find the form that will fit in the lowest position on the neck, based on
+            # which string our root note will be on.
+            # returns tuple (root string, root fret, chord form, string intervals)
+            out = ()
+            root_string = root_fret = iform = 0
+            for open_note in self.bass_tuning:
+                iopen = self.notes.index(open_note)
+                root_fret = (iroot - iopen) if (iroot >= iopen) else (12 + iroot - iopen)
+                try:
+                    if forms[iform][1][root_string] == 1:
+                        form = forms[iform]
+                        if root_fret < form[0][root_string]:
+                            root_fret += 12
+                        if (out == ()) or (root_fret < out[1]):
+                            out = (root_string, root_fret, form[0], form[1])
+                        iform += 1
+                except:
+                    pass
+                root_string += 1
+        else:
+            # chord_form is not zero, use prescribed chord_form
+            iopen = self.notes.index(self.bass_tuning[chord_form-1])
             root_fret = (iroot - iopen) if (iroot >= iopen) else (12 + iroot - iopen)
-            try:
-                if forms[iform][1][root_string] == 1:
-                    form = forms[iform]
-                    if root_fret < form[0][root_string]:
-                        root_fret += 12
-                    if (out == ()) or (root_fret < out[1]):
-                        out = (root_string, root_fret, form[0], form[1])
-                    iform += 1
-            except:
-                pass
-            root_string += 1
+            form = forms[chord_form-1]
+            if root_fret < form[0][chord_form-1]:
+                root_fret += 12
+            out = (chord_form-1, root_fret, form[0], form[1])
 
         return out
 
 
-    def diagram(self,root,type):
+    def diagram(self,root,type,chord_form=0):
         out = []
-        chord = self.find_best_chord(root,type)
+        chord = self.find_best_chord(root,type,chord_form)
         root_string = chord[0]
         root_fret = chord[1]
         form = chord[2]
@@ -90,12 +120,14 @@ class chords:
 
         def interval_ascii(i):
             b = 'R' if i == 1 else str(abs(i))
-            a = 'p' if i in (4,5) else ' '
+            a = 'p' if i in (4,5,11) else ' '
             a = 'b' if i < 0 else a
             if abs(i) in (1,3,5):
                 return f'\033[41;1m{a}{b} \033[0m'
+            elif abs(i) in (11,13):
+                return f'\033[30;47m{a}{b}\033[0m'
             else:
-                return f'\033[43;1m{a}{b} \033[0m'
+                return f'\033[30;47m{a}{b} \033[0m'
 
 
         def position_ascii(position):
@@ -109,7 +141,7 @@ class chords:
             return str(position) + out
 
 
-        out.append(f'\033[37;1m{root + type}\033[0m')
+        out.append(f'\033[37;1m{root + type}\033[0m     ')
 
         fret_offset = root_fret - form[root_string]
         position = 0
@@ -135,7 +167,7 @@ class chords:
 
         out.append(line)
         if position == 0:
-            out.append(' ╟───╫───╫───╫───┼───┤')
+            out.append(' ╟───╫───╫───╫───┼───┤       ')
 
         ifret = position if position > 0 else 1
         while (ifret <= (max(form) + fret_offset)) or ((ifret - position) <= MAX_FRETS):
@@ -155,18 +187,22 @@ class chords:
                 else:
                     line += ' '
 
-            if (position != 0) and (ifret == position):
-                line += ' ' + position_ascii(position)
+            if (position != 0):
+                if (ifret == position):
+                    line += ' ' + position_ascii(position) + '  '
+                else:
+                    line += '       '
+
 
             out.append(line)
-            out.append(' ╟───╫───╫───╫───┼───┤')
+            out.append(' ╟───╫───╫───╫───┼───┤  ')
             ifret += 1
 
         return out
 
 
-    def print_chord(self,root,type):
-        for line in self.diagram(root,type):
+    def print_chord(self,root,type,chord_form=0):
+        for line in self.diagram(root,type,chord_form):
             print(line)
 
 

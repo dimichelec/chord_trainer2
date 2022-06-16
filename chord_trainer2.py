@@ -1,147 +1,102 @@
 import random
 import sys
 import time
-import msvcrt
-import pyfiglet
-import cursor
-from colorama import Fore, Back, Style
-from colorama import init
 
-import metronome
-import audio
 import config
-
-chart_pos_max = 1
-chord_beats = 4
+import ui
+import audio
+import metronome
 
 
 # process command line args and load config file
 config = config.config()
 
+# create the UI
+ui = ui.ui()
+
+#  create and open the audio devices
+audio = audio.audio(device_out = config.output_device)
+
 # create the metronome
 metronome = metronome.metronome(
-    audio, bpm=config.bpm, measures=chart_pos_max, chord_beats=chord_beats)
+    audio=audio, bpm=config.bpm, measures=config.chart_pos_max, chord_beats=config.chord_beats
+)
 audio.set_metronome(metronome)
 
-
 roots = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B']
-chords = ['maj7','min7','dom7','min7b5']
+chords = ['M7','m7','7','m7b5','M9','m9','9','M11','m11','11']
 positions = ['root 1','root 2','root 3']
 
+chord_list = [('G','M7','1'), ('C','M7','2'), ('F','M7','3'), ('G','M7','3'), ('D','M7','2'), ('A','M7','1')]
+chord_list_index = 0
 
-# chord box ----------------------------------------------------------
-chord_top       = 3
-chord_left      = 2
-chord_width     = 75
-chord_height    = 7
-chord_box_style = Style.DIM + Fore.BLUE + Back.BLACK
-
-def draw_chord_box():
-    global chord_top, chord_left, chord_box_style, chord_width, chord_height
-    y = chord_top
-    print(f'\033[{y};{chord_left}H'
-            + chord_box_style + '┌' + chord_width*'─' + '┐')
-    y += 1
-    for i in range(chord_height):
-        print(f'\033[{y};{chord_left}H'
-            + chord_box_style + '|' + chord_width*' ' + '|')
-        y += 1
-    print(f'\033[{y};{chord_left}H'
-        + chord_box_style + '└' + chord_width*'─' + '┘')
+# draw UI components
+ui.draw_chord_box()
+ui.draw_bpm(metronome.bpm)
 
 
-# beatclock ----------------------------------------------------------
-def draw_beatclock(measure,beat):
-    print(f'\033[2;32H'
-        + Style.BRIGHT + Fore.WHITE + Back.BLACK
-        + f'{measure}:{beat}')
-
-# bpm ----------------------------------------------------------------
-def draw_bpm(bpm):
-    print(f'\033[2;56H' + Style.DIM + Fore.GREEN + Back.BLACK
-        + f'{bpm:3d} BPM')
-
-# chord --------------------------------------------------------------
-chord_styles = [
-    Style.DIM    + Fore.WHITE + Back.BLACK,
-    Style.BRIGHT + Fore.GREEN + Back.BLACK,
-    Style.BRIGHT + Fore.RED   + Back.BLACK,
-    Style.BRIGHT + Fore.WHITE + Back.BLACK
-]
-
-def draw_chord(chord,style):
-    global chord_top, chord_width, chord_styles, chord_left
-    #fig = pyfiglet.figlet_format(f'{chord[0]} {chord[1]}', font='slant')
-    fig = pyfiglet.figlet_format(chord,font='slant')
-    fs = fig.splitlines()
-    y = chord_top + 1
-    pad = (chord_width - len(fs[0])) // 2
-    for line in fs:
-        print(f'\033[{y};{chord_left + 1}H'
-            + chord_styles[style]
-            + pad*' ' + line + pad*' ')
-        y += 1
+run = True
+measure = 1
 
 
-def keyhit():
-    key = ''
-    if msvcrt.kbhit():
-        key = msvcrt.getch()
-        key = chr(key[0])
-    return key
+def get_random_chord():
+    global roots, chords, positions
+    return (roots[int(random.random()*len(roots))],
+        chords[int(random.random()*len(chords))],
+        positions[int(random.random()*len(positions))]
+    )
 
 
-tempo = 30
+def get_list_chord():
+    global chord_list, chord_list_index
+    root, chord, position = chord_list[chord_list_index]
+    chord_list_index = 0 if chord_list_index == len(chord_list)-1 else chord_list_index + 1
+    return (root, chord, position)
 
-# styles
-default_style = Style.RESET_ALL
 
-# init the display
-init()              # init colorama
-cursor.hide()
-print('\033[2J')    # clear screen
-print('\033[20;2H' + Fore.LIGHTBLACK_EX + 'Hit <Q> to exit')
+def draw_next_chord():
+    global chord_list, chord_list_index
 
-draw_chord_box()
-draw_bpm(tempo)
+    root, chord, position = get_random_chord()
+    # root, chord, position = get_list_chord()
 
-runflag = True
+    ui.draw_chord(f'{root}{chord} - {position[-1]}', 1)
+    ui.draw_chart_diagram(root,chord,int(position[-1]))
 
-chords = ['maj7']
 
-last_T = time.perf_counter()
+while True:
 
-while runflag:
-    root = roots[int(random.random()*len(roots))]
-    chord = chords[int(random.random()*len(chords))]
-    position = positions[int(random.random()*len(positions))]
-    fig = pyfiglet.figlet_format(f'{root}{chord} - {position[-1]}', font='slant')
-    draw_chord(f'{root}{chord} - {position[-1]}', 1)
-    T = 60./(tempo/4.)
+    # beat clock
+    if run:
+        state, measure, beat = metronome.service()
+        if state > 0:
+            if state == 1:
+                beat_start = time.perf_counter()
+                draw_next_chord()
 
-    while (time.perf_counter() - last_T) < T:
-        # keystroke processing
-        key = keyhit()
-        if key == 'q':                          # quit app
-            runflag = False
-            break
-        # elif key == '+':                        # BPM +1
-        #     metronome.add(1)
-        #     ui.draw_bpm(metronome.bpm)
-        # elif key == '-':                        # BPM -1
-        #     metronome.add(-1)
-        #     ui.draw_bpm(metronome.bpm)
-        # elif key == ' ':                        # start/stop metronome
-        #     run = True if not run else False
-        # elif key == 'r':                        # reset game
-        #     metronome.reset()
-        #     game.reset()
-        #     lead_in = 4
+            ui.draw_beatclock(measure, beat)
+
+    # keystroke processing
+    key = ui.keyhit().lower()
+    if key == 'q':                          # quit app
+        break
+    elif key == '+':                        # BPM +1
+        metronome.add(1)
+        ui.draw_bpm(metronome.bpm)
+    elif key == '-':                        # BPM -1
+        metronome.add(-1)
+        ui.draw_bpm(metronome.bpm)
+    elif key == ' ':                        # start/stop metronome
+        run = True if not run else False
+    elif key == 'n':                        # draw next chord
+        draw_next_chord()
+
+    # elif key == 'r':                        # reset game
+    #     metronome.reset()
+    #     game.reset()
+
     
-    last_T = time.perf_counter()
-
-print(Style.RESET_ALL + '\033[20;1H')
-cursor.show()
-
+ui.uninit()
+audio.uninit()
 sys.exit()
 
