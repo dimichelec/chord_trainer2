@@ -6,13 +6,24 @@ import config
 import ui
 import audio
 import metronome
+import chords
 
 
 # process command line args and load config file
 config = config.config()
 
+# create a chords object
+chords = chords.chords()
+
+# setup the chord list we'll use
+chord_list = []
+chord_sequence_index = 0
+if config.chord_sequence != 0:
+    for chord in chords.chord_sequences[config.chord_sequence-1]:
+        chord_list.append(chord)
+
 # create the UI
-ui = ui.ui()
+ui = ui.ui(chords)
 
 #  create and open the audio devices
 audio = audio.audio(device_out = config.output_device)
@@ -23,56 +34,61 @@ metronome = metronome.metronome(
 )
 audio.set_metronome(metronome)
 
-roots = ['C','C#','Db','D','D#','Eb','E','F','F#','Gb','G','G#','Ab','A','A#','Bb','B']
-chords = ['M7','m7','7','m7b5','M9','m9','9','M11','m11','11']
-positions = ['root 1','root 2','root 3']
-
-chord_list = [('G','M7','1'), ('C','M7','2'), ('F','M7','3'), ('G','M7','3'), ('D','M7','2'), ('A','M7','1')]
-chord_list_index = 0
 
 # draw UI components
 ui.draw_chord_box()
 ui.draw_bpm(metronome.bpm)
-
-
-run = True
-measure = 1
+ui.draw_sequence_name("Sequence: " + ("Random" if config.chord_sequence == 0 else chord_list[0]))
 
 
 def get_random_chord():
-    global roots, chords, positions
-    return (roots[int(random.random()*len(roots))],
-        chords[int(random.random()*len(chords))],
-        positions[int(random.random()*len(positions))]
+    return (
+        chords.notes[int(random.random()*len(chords.notes))],
+        chords.formulas[int(random.random()*len(chords.formulas))][0],
+        int(random.random()*3)+1
     )
 
 
 def get_list_chord():
-    global chord_list, chord_list_index
-    root, chord, position = chord_list[chord_list_index]
-    chord_list_index = 0 if chord_list_index == len(chord_list)-1 else chord_list_index + 1
+    global chord_list,chord_sequence_index
+    chord = chord_list[chord_sequence_index+1]
+    chord_sequence_index = 0 if chord_sequence_index == len(chord_list)-2 else chord_sequence_index + 1
+    return (chord[0], chord[1], int(chord[2]))
+
+
+def draw_next_chord(show_diagram):
+    if config.chord_sequence == 0:
+        root, chord, position = get_random_chord()
+    else:
+        root, chord, position = get_list_chord()
+    ui.draw_chord(f'{root}{chord} - {position}', 1)
+    if show_diagram:
+        ui.draw_chart_diagram(root,chord,position)
     return (root, chord, position)
 
 
-def draw_next_chord():
-    global chord_list, chord_list_index
+run = True
+measure = 1
+show_diagram = True
+chord_count = 0
 
-    root, chord, position = get_random_chord()
-    # root, chord, position = get_list_chord()
-
-    ui.draw_chord(f'{root}{chord} - {position[-1]}', 1)
-    ui.draw_chart_diagram(root,chord,int(position[-1]))
-
+runtime_mark = time.perf_counter()
+runtime = 0
 
 while True:
 
     # beat clock
     if run:
+        if (time.perf_counter() - runtime_mark) >= 1.:
+            runtime += 1
+            runtime_mark += 1.
+            ui.draw_timecount(f'{runtime//3600:01d}:{runtime//60:02d}:{runtime%60:02d}', chord_count)
         state, measure, beat = metronome.service()
         if state > 0:
             if state == 1:
                 beat_start = time.perf_counter()
-                draw_next_chord()
+                (root, chord, position) = draw_next_chord(show_diagram)
+                chord_count += 1
 
             ui.draw_beatclock(measure, beat)
 
@@ -87,9 +103,20 @@ while True:
         metronome.add(-1)
         ui.draw_bpm(metronome.bpm)
     elif key == ' ':                        # start/stop metronome
-        run = True if not run else False
+        if run:
+            run = False
+        else:
+            run = True
+            beat_start = runtime_mark = time.perf_counter()
     elif key == 'n':                        # draw next chord
-        draw_next_chord()
+        draw_next_chord(show_diagram)
+    elif key == 'h':                        # hide/show chord diagram
+        if show_diagram:
+            ui.clear_chart_diagram()
+            show_diagram = False
+        else:
+            ui.draw_chart_diagram(root,chord,position)
+            show_diagram = True
 
     # elif key == 'r':                        # reset game
     #     metronome.reset()

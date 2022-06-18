@@ -2,7 +2,6 @@
 import msvcrt
 import pyfiglet
 import cursor
-import chords
 
 from colorama import Fore, Back, Style
 from colorama import init
@@ -10,17 +9,14 @@ from colorama import init
 
 class ui:
 
-    chords = chords.chords()
-
-    # score --------------------------------------------------------------
-    def draw_score(self,score):
+    # sequence name ------------------------------------------------------
+    def draw_sequence_name(self,name):
         print(f'\033[2;3H'
             + Style.DIM + Fore.WHITE + Back.BLACK
-            + f'SCORE {score}')
+            + f'{name}')
 
     # beatclock ----------------------------------------------------------
     def draw_beatclock(self,measure,beat):
-        #print(f'\033[2;32H'
         print(f'\033[2;39H'
             + Style.BRIGHT + Fore.WHITE + Back.BLACK
             + f'{measure}:{beat}')
@@ -30,12 +26,10 @@ class ui:
     signal_off  = Style.DIM    + Fore.RED + Back.BLACK + ' '  #'□'
 
     def draw_signal(self,signal):
-        #print(f'\033[2;54H' + (self.signal_on if signal else self.signal_off))
         print(f'\033[4;4H' + (self.signal_on if signal else self.signal_off))
 
     # bpm ----------------------------------------------------------------
     def draw_bpm(self,bpm):
-        #print(f'\033[2;56H' + Style.DIM + Fore.GREEN + Back.BLACK
         print(f'\033[2;71H' + Style.DIM + Fore.GREEN + Back.BLACK
             + f'{bpm:3d} BPM')
 
@@ -67,7 +61,6 @@ class ui:
     ]
 
     def draw_chord(self,chord,style):
-        #fig = pyfiglet.figlet_format(f'{chord[0]} {chord[1]}', font='slant')
         fig = pyfiglet.figlet_format(chord,font='slant')
         fs = fig.splitlines()
         y = self.chord_top + 1
@@ -77,6 +70,17 @@ class ui:
                 + self.chord_styles[style]
                 + pad*' ' + line + pad*' ')
             y += 1
+
+
+    # timer/counter ------------------------------------------------------
+    timecount_top  = chord_top + chord_height + 2
+    timecount_left = chord_left + 1
+
+    def draw_timecount(self,time,count):
+        print(f'\033[{self.timecount_top};{self.timecount_left}H'
+            + Style.BRIGHT + Fore.WHITE + Back.BLACK
+            + f'{time}/{count} chords')
+
 
     # chord score --------------------------------------------------------
     chord_score_top  = chord_top + chord_height
@@ -129,10 +133,22 @@ class ui:
     # chord diagram ------------------------------------------------------
     diagram_top       = 2
     diagram_left      = 83
+    diagram_height    = 15
+    diagram_width     = 29
+
     def draw_chart_diagram(self,root,type,chord_form=0):
         y = self.diagram_top
         for line in self.chords.diagram(root,type,chord_form):
             print(f'\033[{y};{self.diagram_left}H{line}')
+            y += 1
+        while y <= self.diagram_height:
+            print(f'\033[{y};{self.diagram_left}H' + (self.diagram_width*' '))
+            y += 1
+
+    def clear_chart_diagram(self):
+        y = self.diagram_top
+        for line in range(self.diagram_height):
+            print(f'\033[{y};{self.diagram_left}H' + (self.diagram_width*' '))
             y += 1
 
 
@@ -155,10 +171,11 @@ class ui:
         return key
 
 
-    def __init__(self):
+    def __init__(self,chords):
 
         # styles
         self.default_style = Style.RESET_ALL
+        self.chords = chords
 
         # init the display
         init()              # init colorama
@@ -169,8 +186,6 @@ class ui:
         # draw a box for the chord display
         self.draw_chord_box()
         self.draw_signal(False)
-
-        #self.draw_chart_diagram('C','m9')
 
 
     def uninit(self):

@@ -62,6 +62,15 @@ class chords:
     ]
 
 
+    chord_sequences = [
+        ["Major 7s",           ('G','M7','1'), ('C','M7','2'), ('F','M7','3'), ('G','M7','3'), ('D','M7','2'), ('A','M7','1')],
+        ["Minor 7s",           ('G','m7','1'), ('C','m7','2'), ('F','m7','3'), ('G','m7','3'), ('D','m7','2'), ('A','m7','1')],
+        ["Dominant 7s",        ('G','7','1'),  ('C','7','2'),  ('F','7','3'),  ('G','7','3'),  ('D','7','2'),  ('A','7','1')],
+        ["Two-Five_One",       ('A','m7','1'), ('D','M7','2'), ('G','M7','1')],
+        ["Secondary Dominant", ('D','7','2'),  ('G','7','1'),  ('C','M7','2')],
+    ]
+
+
     # given the root note and chord type, return a chord from our formulas played
     # in lowest neck position
     def find_best_chord(self,root,type,chord_form=0):
@@ -205,6 +214,25 @@ class chords:
         for line in self.diagram(root,type,chord_form):
             print(line)
 
+
+    def list_sequences(self):
+        print('\nChord Sequences:')
+        print(" 0: Random")
+        i = 1
+        for sequence in self.chord_sequences:
+            a = ''
+            flag = False
+            for chord in sequence:
+                if a == '':
+                    a += f'{i:2d}: {chord:20s} - '
+                else:
+                    if not flag:
+                        flag = True
+                    else:
+                        a += ', '
+                    a += f'{chord[0]}{chord[1]}-{chord[2]}'
+            print(a)
+            i += 1
 
 
         
