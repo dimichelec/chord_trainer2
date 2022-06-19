@@ -108,15 +108,18 @@ while True:
         else:
             run = True
             beat_start = runtime_mark = time.perf_counter()
-    elif key == 'n':                        # draw next chord
-        draw_next_chord(show_diagram)
-    elif key == 'h':                        # hide/show chord diagram
+    elif key == 'd':                        # hide/show chord diagram
         if show_diagram:
             ui.clear_chart_diagram()
             show_diagram = False
         else:
             ui.draw_chart_diagram(root,chord,position)
             show_diagram = True
+    elif key == 'n':                        # draw next chord
+        draw_next_chord(show_diagram)
+    elif key == 'm':                        # mute/unmute metronome
+        metronome.mute = False if metronome.mute else True
+        ui.draw_mute(metronome.mute)
 
     # elif key == 'r':                        # reset game
     #     metronome.reset()

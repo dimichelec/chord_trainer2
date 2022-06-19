@@ -28,6 +28,11 @@ class ui:
     def draw_signal(self,signal):
         print(f'\033[4;4H' + (self.signal_on if signal else self.signal_off))
 
+    # mute indicator -----------------------------------------------------
+    def draw_mute(self,mute):
+        print(f'\033[2;66H' + Style.DIM + Fore.RED + Back.BLACK
+            + ("MUTE" if mute else "    "))
+
     # bpm ----------------------------------------------------------------
     def draw_bpm(self,bpm):
         print(f'\033[2;71H' + Style.DIM + Fore.GREEN + Back.BLACK
@@ -163,6 +168,27 @@ class ui:
             + self.stats_style + stat)
 
 
+    # help lines ---------------------------------------------------------
+    help_top        = 14
+    help_left       = chart_left
+    help_column2    = chart_left + 40
+    help_bottom     = 20
+
+    def draw_help(self):
+        y = self.help_top
+        x = self.help_left
+        print(f'\033[{y};{x}H'  + Fore.LIGHTBLACK_EX + '<space>  start/stop metronome');  y += 1
+        print(f'\033[{y};{x}H'  + Fore.LIGHTBLACK_EX + '  +/-    change BPM');            y += 1
+        print(f'\033[{y};{x}H'  + Fore.LIGHTBLACK_EX + '   M     mute/unmute metronome'); y += 1
+        
+        y = self.help_top
+        x = self.help_column2
+        print(f'\033[{y};{x}H' + Fore.LIGHTBLACK_EX + 'N  skip to next chord');      y += 1
+        print(f'\033[{y};{x}H' + Fore.LIGHTBLACK_EX + 'D  hide/show chord diagram'); y += 1
+
+        print(f'\033[{self.help_bottom};{self.help_left}H' + Fore.LIGHTBLACK_EX + 'Hit <Q> to exit')
+
+
     def keyhit(self):
         key = ''
         if msvcrt.kbhit():
@@ -181,7 +207,7 @@ class ui:
         init()              # init colorama
         cursor.hide()
         print('\033[2J')    # clear screen
-        print('\033[20;2H' + Fore.LIGHTBLACK_EX + 'Hit <Q> to exit')
+        self.draw_help()
 
         # draw a box for the chord display
         self.draw_chord_box()
@@ -191,6 +217,4 @@ class ui:
     def uninit(self):
         print(Style.RESET_ALL + '\033[20;1H')
         cursor.show()
-
-
 
