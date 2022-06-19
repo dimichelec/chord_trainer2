@@ -202,7 +202,6 @@ class chords:
                 else:
                     line += '       '
 
-
             out.append(line)
             out.append(' ╟───╫───╫───╫───┼───┤  ')
             ifret += 1

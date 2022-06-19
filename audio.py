@@ -106,6 +106,11 @@ class audio:
 
 
     def play_click(self):
+        try:
+            self.stream.stop_stream()
+            self.stream.close()
+        except:
+            pass
         self.stream = self.audioinstance.open(
             format=pyaudio.paInt16,
             channels=1,

@@ -9,17 +9,20 @@ from colorama import init
 
 class ui:
 
-    # sequence name ------------------------------------------------------
-    def draw_sequence_name(self,name):
-        print(f'\033[2;3H'
-            + Style.DIM + Fore.WHITE + Back.BLACK
-            + f'{name}')
+    # timer/counter ------------------------------------------------------
+    timecount_top  = 2
+    timecount_left = 3
+
+    def draw_time(self,time):
+        print(f'\033[{self.timecount_top};{self.timecount_left}H'
+            + Style.BRIGHT + Fore.WHITE + Back.BLACK
+            + f'{time//3600:01d}:{time//60:02d}:{time%60:02d}')
 
     # beatclock ----------------------------------------------------------
     def draw_beatclock(self,measure,beat):
         print(f'\033[2;39H'
             + Style.BRIGHT + Fore.WHITE + Back.BLACK
-            + f'{measure}:{beat}')
+            + f'{measure}:{beat}   ')
 
     # signal indicator ---------------------------------------------------
     signal_on   = Style.BRIGHT + Fore.RED + Back.BLACK + '▀'  #'■'
@@ -34,8 +37,13 @@ class ui:
             + ("MUTE" if mute else "    "))
 
     # bpm ----------------------------------------------------------------
-    def draw_bpm(self,bpm):
-        print(f'\033[2;71H' + Style.DIM + Fore.GREEN + Back.BLACK
+    bpm_styles = [
+        Style.DIM + Fore.WHITE + Back.BLACK,
+        Style.DIM + Fore.GREEN + Back.BLACK
+    ]
+
+    def draw_bpm(self,bpm,style):
+        print(f'\033[2;71H' + self.bpm_styles[style]
             + f'{bpm:3d} BPM')
 
     # chord box ----------------------------------------------------------
@@ -76,17 +84,6 @@ class ui:
                 + pad*' ' + line + pad*' ')
             y += 1
 
-
-    # timer/counter ------------------------------------------------------
-    timecount_top  = chord_top + chord_height + 2
-    timecount_left = chord_left + 1
-
-    def draw_timecount(self,time,count):
-        print(f'\033[{self.timecount_top};{self.timecount_left}H'
-            + Style.BRIGHT + Fore.WHITE + Back.BLACK
-            + f'{time}/{count} chords')
-
-
     # chord score --------------------------------------------------------
     chord_score_top  = chord_top + chord_height
     chord_score_left = chord_left + 3
@@ -95,29 +92,24 @@ class ui:
         x = self.chord_score_left + ((self.chord_width - 4) - len(score))//2
         print(f'\033[{self.chord_score_top};{x}H{score}     ')
 
-
     # chord chart --------------------------------------------------------
     chart_top           = 12
-    chart_left          = 4
-    chart_style         = Style.BRIGHT + Fore.WHITE + Back.BLACK
+    chart_left          = 3
+    chart_style         = Fore.WHITE + Back.BLACK
     chart_positions     = []
 
     def draw_chart(self,chart):
         a = ''
-        x = 0
-        chart_positions = []
-        for chord in chart:
-            b = chord[0]
-            if chord[1] == 'min':
-                b += 'm'
-            elif chord[1] == 'dim':
-                b += '°'
-            self.chart_positions.append(x)
+        x = len(chart[0]) + 2
+        self.chart_positions = []
+        for chord in chart[1:]:
+            b = chord[0] + chord[1]
+            self.chart_positions.append(x+((len(b)-1)//2))
             x += len(b) + 2
             a += b + '  '
 
         print(f'\033[{self.chart_top};{self.chart_left}H'
-            + self.chart_style + a)
+            + self.chart_style + chart[0] + ': ' + Style.BRIGHT + a)
 
     # chord chart pointer ------------------------------------------------
     chart_pointer_on        = Style.BRIGHT + Fore.YELLOW + Back.BLACK + '▲'
@@ -156,10 +148,9 @@ class ui:
             print(f'\033[{y};{self.diagram_left}H' + (self.diagram_width*' '))
             y += 1
 
-
     # stats lines --------------------------------------------------------
-    stats_top       = chart_top + 3
-    stats_left      = chart_left
+    stats_top       = 15
+    stats_left      = 4
     stats_style     = Style.DIM + Fore.CYAN + Back.BLACK
     stats_style1    = Style.BRIGHT + Fore.CYAN + Back.BLACK
 
@@ -167,9 +158,8 @@ class ui:
         print(f'\033[{self.stats_top+line};{self.stats_left}H'
             + self.stats_style + stat)
 
-
     # help lines ---------------------------------------------------------
-    help_top        = 14
+    help_top        = 15
     help_left       = chart_left
     help_column2    = chart_left + 40
     help_bottom     = 20
@@ -183,6 +173,7 @@ class ui:
         
         y = self.help_top
         x = self.help_column2
+        print(f'\033[{y};{x}H' + Fore.LIGHTBLACK_EX + 'R  reset everything');        y += 1
         print(f'\033[{y};{x}H' + Fore.LIGHTBLACK_EX + 'N  skip to next chord');      y += 1
         print(f'\033[{y};{x}H' + Fore.LIGHTBLACK_EX + 'D  hide/show chord diagram'); y += 1
 
