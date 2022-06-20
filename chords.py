@@ -1,4 +1,6 @@
 
+import random
+
 
 class chords:
 
@@ -234,4 +236,10 @@ class chords:
             i += 1
 
 
-        
+    def get_random_chord(self):
+        return (
+            self.notes[int(random.random()*len(self.notes))],
+            self.formulas[int(random.random()*len(self.formulas))][0],
+            int(random.random()*3)+1
+        )
+

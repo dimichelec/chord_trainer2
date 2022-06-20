@@ -73,8 +73,9 @@ class ui:
         Style.BRIGHT + Fore.WHITE + Back.BLACK
     ]
 
+    # chord format is (root, chord, position[int])
     def draw_chord(self,chord,style):
-        fig = pyfiglet.figlet_format(chord,font='slant')
+        fig = pyfiglet.figlet_format(f'{chord[0]}{chord[1]} - {chord[2]}',font='slant')
         fs = fig.splitlines()
         y = self.chord_top + 1
         pad = (self.chord_width - len(fs[0])) // 2
@@ -133,9 +134,10 @@ class ui:
     diagram_height    = 15
     diagram_width     = 29
 
-    def draw_chart_diagram(self,root,type,chord_form=0):
+    # chord format is (root, chord, position[int])
+    def draw_chart_diagram(self,chord):
         y = self.diagram_top
-        for line in self.chords.diagram(root,type,chord_form):
+        for line in self.chords.diagram(chord[0],chord[1],int(chord[2])):
             print(f'\033[{y};{self.diagram_left}H{line}')
             y += 1
         while y <= self.diagram_height:
