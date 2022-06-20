@@ -112,7 +112,7 @@ while True:
     if run:
         if time.perf_counter() > (runtime_mark + 1):
             runtime += 1
-            runtime_mark = time.perf_counter()
+            runtime_mark += 1
             ui.draw_time(runtime)
         state, measure, beat = metronome.service()
         if state > 0:
