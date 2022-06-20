@@ -1,25 +1,27 @@
 # chord_trainer2
-show a random chord on a regular time interval
+show a chord on a regular time interval for practicing guitar.
 
-Jazz chords:
-* ***X*** maj7
-    * root 1 (  R,  x,  1,  1,  0,  x)
-    * root 2 (  x,  R,  2,  1,  2,  0)
-    * root 3 (  x,  x,  R,  2,  2,  2)
+![chord_trainer2](screenshot_1.png "chord_trainer2.py screenshot")
 
-* ***X*** dom7
-    * root 1 (  R,  x,  0,  1,  0,  x)
-    * root 2 (  x,  R, -1,  0, -2,  x)
-    * root 3 (  x,  x,  R,  2,  1,  2)
+# [Demo Video](chord_trainer_demo_1.mp4 "chord_trainer.py demo video")
 
-* ***X*** min7
-    * root 1 (  R,  x,  0,  0,  0,  x)
-    * root 2 (  x,  R,  2,  0,  1,  0)
-    * root 3 (  x,  x,  R,  2,  1,  1)
 
-* ***X*** min7b5
-    * root 1 (  R,  x,  0,  0, -1,  x)
-    * root 2 (  x,  R,  1,  0,  1,  x)
-    * root 3 (  x,  x,  R,  1,  1,  1)
+<!-- # usage
+```
+usage: .\chord_trainer.py -i <device ID> -o <device ID> -b <bpm> -c <chords> -d -v <device> -h
 
+-i <device ID>, --input   : use this device ID for input
+-o <device ID>, --output  : use this device ID for output
+-b <bpm>,       --bpm     : set tempo to <bpm>
+-c <chords>,    --chords  : use comma separated list as chart (eg. "-c Am,D,Gm,C")
+-d,             --devices : list all audio devices
+-e <beats>,     --beats   : beats per chord
+-v <device>,    --verbose : show device(s) with verbose info (eg. "-v Speaker" shows all
+                            devices with "Speaker" in its name)
+-h,             --help    : show usage information
+```
+   -->
+  
+# Acknowledgements
+written by [Carmen DiMichele](https://dimichelec.wixsite.com/carmendimichele) 
 
