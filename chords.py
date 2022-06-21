@@ -65,14 +65,17 @@ class chords:
 
 
     chord_sequences = [
-        ["Major 7s",           ('G','M7','1'), ('C','M7','2'), ('F','M7','3'), ('G','M7','3'), ('D','M7','2'), ('A','M7','1')],
-        ["Minor 7s",           ('G','m7','1'), ('C','m7','2'), ('F','m7','3'), ('G','m7','3'), ('D','m7','2'), ('A','m7','1')],
-        ["Dominant 7s",        ('G','7','1'),  ('C','7','2'),  ('F','7','3'),  ('G','7','3'),  ('D','7','2'),  ('A','7','1')],
-        ["Major 9s",           ('G','M9','1'), ('C','M9','2'), ('F','M9','3'), ('G','M9','3'), ('D','M9','2'), ('A','M9','1')],
-        ["Minor 9s",           ('G','m9','1'), ('C','m9','2'), ('F','m9','3'), ('G','m9','3'), ('D','m9','2'), ('A','m9','1')],
-        ["Dominant 9s",        ('G','9','1'),  ('C','9','2'),  ('F','9','3'),  ('G','9','3'),  ('D','9','2'),  ('A','9','1')],
-        ["Gmaj ii-V-I",        ('A','m7','1'), ('D','7','2'),  ('G','M7','1')],
-        ["Secondary Dominant", ('D','7','2'),  ('G','7','1'),  ('C','M7','2')],
+        ["Major 7s",           'GM7-1','CM7-2','FM7-3','GM7-3','DM7-2','AM7-1'],
+        ["Minor 7s",           'Gm7-1','Cm7-2','Fm7-3','Gm7-3','Dm7-2','Am7-1'],
+        ["Dominant 7s",        'G7-1', 'C7-2', 'F7-3', 'G7-3', 'D7-2', 'A7-1' ],
+        ["Major 9s",           'GM9-1','CM9-2','FM9-3','GM9-3','DM9-2','AM9-1'],
+        ["Minor 9s",           'Gm9-1','Cm9-2','Fm9-3','Gm9-3','Dm9-2','Am9-1'],
+        ["Dominant 9s",        'G9-1', 'C9-2', 'F9-3', 'G9-3', 'D9-2', 'A9-1' ],
+        ["Gmaj ii-V-I",        'Am7-1','D7-2', 'GM7-1'],
+        ["C F Bb ii-V-Is",     'Dm7', 'G7', 'CM7',  'Gm7', 'C7', 'FM7',  'Cm7', 'F7', 'BbM7'],
+        ["Eb Ab Db ii-V-Is",   'Fm7', 'Bb7','EbM7', 'Bbm7','Eb7','AbM7', 'Ebm7','Ab7','DbM7'],
+        ["Gb B E ii-V-Is",     'Abm7','Db7','GbM7', 'C#m7','F#7','BM7',  'F#m7','B7', 'EM7' ],
+        ["A D G ii-V-Is",      'Bm7', 'E7', 'AM7',  'Em7', 'A7', 'DM7',  'Am7', 'D7', 'GM7' ],
     ]
 
 
@@ -154,8 +157,7 @@ class chords:
                 out = 'rd'
             return str(position) + out
 
-
-        out.append(f'\033[37;1m{root + type}\033[0m     ')
+        out.append(f'\033[37;1m{root}{type} -{root_string+1}\033[0m     ')
 
         fret_offset = root_fret - form[root_string]
         position = 0
@@ -224,17 +226,12 @@ class chords:
         print(" 0: Random")
         i = 1
         for sequence in self.chord_sequences:
-            a = ''
+            a = f'{i:2d}: {sequence[0]:20s} - '
             flag = False
-            for chord in sequence:
-                if a == '':
-                    a += f'{i:2d}: {chord:20s} - '
-                else:
-                    if not flag:
-                        flag = True
-                    else:
-                        a += ', '
-                    a += f'{chord[0]}{chord[1]}-{chord[2]}'
+            for chord in sequence[1:]:
+                a += (', ' if flag else '') + chord
+                if not flag:
+                    flag = True
             print(a)
             i += 1
 

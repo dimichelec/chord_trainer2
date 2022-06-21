@@ -54,6 +54,8 @@ class config:
                         self.chart.append((chord.split('m')[0], 'min' if 'm' in chord else 'maj'))
                 elif key == 'chord_beats':
                     self.chord_beats = int(arg)
+                elif key == 'sequence':
+                    self.chord_sequence = int(arg)
 
         # process any command line args
         try:

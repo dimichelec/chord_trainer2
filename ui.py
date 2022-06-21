@@ -75,7 +75,7 @@ class ui:
 
     # chord format is (root, chord, position[int])
     def draw_chord(self,chord,style):
-        fig = pyfiglet.figlet_format(f'{chord[0]}{chord[1]} - {chord[2]}',font='slant')
+        fig = pyfiglet.figlet_format(f'{chord[0]}{chord[1]}' + (f' - {chord[2]}' if chord[2] > 0 else ''),font='slant')
         fs = fig.splitlines()
         y = self.chord_top + 1
         pad = (self.chord_width - len(fs[0])) // 2

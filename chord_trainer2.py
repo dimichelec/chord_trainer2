@@ -16,9 +16,30 @@ chords = chords.chords()
 current_chord = None
 chord_chart = []
 chord_sequence_index = 0
+
+# chord format from sequences is {A-G}[b/#][m/M][2-13][b/#][2-13][-][1-3]
 if config.chord_sequence != 0:
-    for chord in chords.chord_sequences[config.chord_sequence-1]:
-        chord_chart.append(chord)
+    chord_chart.append(chords.chord_sequences[config.chord_sequence-1][0])
+    for chord in chords.chord_sequences[config.chord_sequence-1][1:]:
+        position = 0
+        try:
+            i = chord.index('-')
+            position = int(chord[i+1:])
+            chord = chord[:i]
+        except:
+            pass
+
+        print(chord,position)
+
+        root = chord[0]
+        if (chord[1]=='#') or (chord[1]=='b'):
+            root += chord[1]
+            type = chord[2:]
+        else:
+            type = chord[1:]
+
+        chord_chart.append((root,type,position))
+
 
 #  create and open the audio devices and metronome
 audio = audio.audio(device_out=config.output_device)
